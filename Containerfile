@@ -912,3 +912,49 @@ RUN echo "import \"/usr/share/ublue-os/just/95-bazzite-nvidia.just\"" >> /usr/sh
     /usr/libexec/containerbuild/cleanup.sh && \
     mkdir -p /var/tmp && chmod 1777 /var/tmp && \
     ostree container commit
+
+FROM bazzite-deck AS bazzite-deck-nvidia
+
+ARG IMAGE_NAME="${IMAGE_NAME:-bazzite-deck-nvidia}"
+ARG IMAGE_VENDOR="${IMAGE_VENDOR:-ublue-os}"
+ARG IMAGE_FLAVOR="${IMAGE_FLAVOR:-deck-nvidia}"
+ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-fsync}"
+ARG KERNEL_VERSION="${KERNEL_VERSION:-6.10.4-201.fsync.fc40.x86_64}"
+ARG IMAGE_BRANCH="${IMAGE_BRANCH:-main}"
+ARG BASE_IMAGE_NAME="${BASE_IMAGE_NAME:-kinoite}"
+ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
+ARG VERSION_TAG="${VERSION_TAG}"
+ARG VERSION_PRETTY="${VERSION_PRETTY}"
+
+# Fetch NVIDIA driver
+COPY system_files/nvidia/shared system_files/nvidia/${BASE_IMAGE_NAME} /
+
+# Remove everything that doesn't work well with NVIDIA
+# Install X11 session (Remove me for Fedora 41)
+RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
+    rpm-ostree override remove \
+        rocm-hip \
+        rocm-opencl \
+        rocm-clinfo && \
+    /usr/libexec/containerbuild/cleanup.sh && \
+    ostree container commit
+
+# Install NVIDIA driver
+RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
+    --mount=type=bind,from=nvidia-akmods,src=/rpms,dst=/tmp/akmods-rpms \
+    curl -Lo /tmp/nvidia-install.sh https://raw.githubusercontent.com/ublue-os/hwe/main/nvidia-install.sh && \
+    chmod +x /tmp/nvidia-install.sh && \
+    IMAGE_NAME="${BASE_IMAGE_NAME}" /tmp/nvidia-install.sh && \
+    rm -f /usr/share/vulkan/icd.d/nouveau_icd.*.json && \
+    ln -s libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so && \
+    /usr/libexec/containerbuild/cleanup.sh && \
+    ostree container commit
+
+# Cleanup & Finalize
+RUN echo "import \"/usr/share/ublue-os/just/95-bazzite-nvidia.just\"" >> /usr/share/ublue-os/justfile && \
+    mkdir -p /var/tmp && chmod 1777 /var/tmp && \
+    /usr/libexec/containerbuild/image-info && \
+    /usr/libexec/containerbuild/build-initramfs && \
+    /usr/libexec/containerbuild/cleanup.sh && \
+    mkdir -p /var/tmp && chmod 1777 /var/tmp && \
+    ostree container commit

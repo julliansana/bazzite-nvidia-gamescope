@@ -532,6 +532,7 @@ RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
         sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>preferred:\/\/browser,applications:steam.desktop,applications:net.lutris.Lutris.desktop,applications:org.gnome.Ptyxis.desktop,applications:org.kde.discover.desktop,preferred:\/\/filemanager<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml && \
         sed -i '/<entry name="favorites" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>preferred:\/\/browser,steam.desktop,net.lutris.Lutris.desktop,systemsettings.desktop,org.kde.dolphin.desktop,org.kde.kate.desktop,org.gnome.Ptyxis.desktop,org.kde.discover.desktop,system-update.desktop<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.kickoff/contents/config/main.xml && \
         sed -i 's@\[Desktop Action new-window\]@\[Desktop Action new-window\]\nX-KDE-Shortcuts=Ctrl+Alt+T@g' /usr/share/applications/org.gnome.Ptyxis.desktop && \
+        sed -i '/^Comment/d' /usr/share/applications/org.gnome.Ptyxis.desktop && \
         sed -i 's@Exec=ptyxis@Exec=kde-ptyxis@g' /usr/share/applications/org.gnome.Ptyxis.desktop && \
         sed -i 's@Keywords=@Keywords=konsole;console;@g' /usr/share/applications/org.gnome.Ptyxis.desktop && \
         cp /usr/share/applications/org.gnome.Ptyxis.desktop /usr/share/kglobalaccel/org.gnome.Ptyxis.desktop && \
@@ -571,6 +572,7 @@ RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
             gnome-classic-session-xsession \
             gnome-tour \
             gnome-extensions-app \
+            gnome-terminal \
             gnome-terminal-nautilus \
             gnome-initial-setup \
             gnome-shell-extension-background-logo \
@@ -581,7 +583,6 @@ RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
             wget -qi - -O /tmp/tilingshell/tilingshell@ferrarodomenico.com.zip && \
         unzip /tmp/tilingshell/tilingshell@ferrarodomenico.com.zip -d /usr/share/gnome-shell/extensions/tilingshell@ferrarodomenico.com && \
         rm -rf /tmp/tilingshell && \
-        sed -i 's@\[Desktop Entry\]@\[Desktop Entry\]\nNoDisplay=true@g' /usr/share/applications/org.gnome.Terminal.desktop && \
         sed -i 's@\[Desktop Entry\]@\[Desktop Entry\]\nNoDisplay=true@g' /usr/share/applications/org.gnome.SystemMonitor.desktop && \
         systemctl enable dconf-update.service \
     ; fi && \

@@ -21,16 +21,8 @@ jobs:
         image_name:
           - bazzite
           - bazzite-nvidia
-          - bazzite-gnome
-          - bazzite-gnome-nvidia
           - bazzite-deck
-          - bazzite-deck-gnome
-          - bazzite-ally
-          - bazzite-ally-gnome
-          - bazzite-asus
-          - bazzite-gnome-asus
-          - bazzite-asus-nvidia
-          - bazzite-gnome-asus-nvidia
+          - bazzite-deck-nvidia
         major_version: [40]
     steps:
 
